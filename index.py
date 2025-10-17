@@ -1,10 +1,13 @@
 
-from flask import Flask, render_template_string, request, send_file
+from flask import Flask, render_template_string, request, send_file, session, redirect, url_for
 import sqlite3
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
+from datetime import datetime
+
+
 
 app = Flask(__name__)
 
@@ -110,7 +113,7 @@ def generar_formulario_html(preguntas):
 def calcular_puntaje(respuestas, preguntas):
     return sum(1 for k in preguntas if respuestas.get(k) == preguntas[k][2])
 
-def generar_certificado(nombre, puntaje):
+def generar_certificado(nombre, puntaje, fecha):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=(letter[0], letter[1] / 2))  # Media página
 
@@ -135,13 +138,96 @@ def generar_certificado(nombre, puntaje):
                         f"Se certifica que {nombre} ha participado en la Casa Abierta de Informática.")
     c.drawCentredString(letter[0] / 2, (letter[1] / 2) - 110,
                         f"Puntaje obtenido en el cuestionario: {puntaje} / 3")
-    c.drawCentredString(letter[0] / 2, (letter[1] / 2) - 140,
+    c.drawCentredString(letter[0] / 2, (letter[1] / 2) - 130,
+                        f"Fecha de participación: {fecha}")
+    c.drawCentredString(letter[0] / 2, (letter[1] / 2) - 160,
                         "¡Gracias por tu participación!")
 
     c.showPage()
     c.save()
     buffer.seek(0)
     return buffer
+
+app.secret_key = 'tu_clave_secreta'  # Necesario para usar session
+
+@app.route('/gracias')
+def gracias():
+    nombre = session.get('nombre')
+    puntaje = session.get('puntaje')
+    fecha = session.get('fecha')
+
+    if not nombre:
+        return redirect(url_for('index'))
+
+    pdf = generar_certificado(nombre, puntaje, fecha)
+    session['pdf'] = pdf.getvalue()
+
+    # Eliminar datos de sesión para evitar reenvíos o accesos posteriores
+    session.pop('nombre', None)
+    session.pop('puntaje', None)
+    session.pop('fecha', None)
+
+    html = f"""
+    <!doctype html>
+    <html lang="es">
+    <head>
+      <meta charset="utf-8">
+      <title>Gracias por participar</title>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    </head>
+    <body>
+      <div class="container py-5 text-center">
+        <h2 class="text-success">¡Gracias por participar, {nombre}!</h2>
+        <p>Tu puntaje fue <strong>{puntaje} / 3</strong>.</p>
+        <p>Fecha de participación: {fecha}</p>
+        <a href="/descargar_certificado" class="btn btn-primary mt-3">Descargar certificado</a>
+      </div>
+      <script>
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function () {{
+          window.history.pushState(null, "", window.location.href);
+        }};
+      </script>
+    </body>
+    </html>
+    """
+    return html
+    nombre = session.get('nombre')
+    puntaje = session.get('puntaje')
+    fecha = session.get('fecha')
+
+    if not nombre:
+        return redirect(url_for('index'))
+
+    pdf = generar_certificado(nombre, puntaje, fecha)
+    session['pdf'] = pdf.getvalue()  # Guardar el PDF en sesión temporalmente
+
+    html = f"""
+    <!doctype html>
+    <html lang="es">
+    <head>
+      <meta charset="utf-8">
+      <title>Gracias por participar</title>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    </head>
+    <body>
+      <div class="container py-5 text-center">
+        <h2 class="text-success">¡Gracias por participar, {nombre}!</h2>
+        <p>Tu puntaje fue <strong>{puntaje} / 3</strong> en el cuestionario.</p>
+        <p>Fecha de participación: {fecha}</p>
+        <a href="/descargar_certificado" class="btn btn-primary mt-3">Descargar certificado</a>
+      </div>
+
+      <script>
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function () {{
+          window.history.pushState(null, "", window.location.href);
+        }};
+      </script>
+    </body>
+    </html>
+    """
+    return html
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -152,21 +238,39 @@ def index():
         institucion = request.form.get('institucion', '')
         respuestas = {k: request.form.get(k) for k in preguntas_actuales}
         puntaje = calcular_puntaje(respuestas, preguntas_actuales)
+        fecha = datetime.now().strftime("%d/%m/%Y")
 
         conn = sqlite3.connect('participantes.db')
         cursor = conn.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS participantes (nombre TEXT, correo TEXT, institucion TEXT, puntaje INTEGER)")
-        cursor.execute("INSERT INTO participantes VALUES (?, ?, ?, ?)", (nombre, correo, institucion, puntaje))
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS participantes (
+                nombre TEXT, correo TEXT, institucion TEXT, puntaje INTEGER, fecha TEXT
+            )
+        """)
+        cursor.execute("INSERT INTO participantes VALUES (?, ?, ?, ?, ?)",
+                       (nombre, correo, institucion, puntaje, fecha))
         conn.commit()
         conn.close()
 
-        # Rotar al siguiente conjunto de preguntas
         contador['index'] = (contador['index'] + 1) % len(conjuntos_preguntas)
 
-        pdf = generar_certificado(nombre, puntaje)
-        return send_file(pdf, as_attachment=True, download_name='certificado.pdf', mimetype='application/pdf')
+        # Guardar datos en sesión para usarlos en la página de agradecimiento
+        session['nombre'] = nombre
+        session['puntaje'] = puntaje
+        session['fecha'] = fecha
+
+        return redirect(url_for('gracias'))
 
     return render_template_string(generar_formulario_html(preguntas_actuales))
+
+@app.route('/descargar_certificado')
+def descargar_certificado():
+    pdf_data = session.get('pdf')
+    if not pdf_data:
+        return redirect(url_for('index'))
+    return send_file(BytesIO(pdf_data), as_attachment=True,
+                     download_name='certificado.pdf', mimetype='application/pdf')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
