@@ -1,38 +1,103 @@
-
 from flask import Flask, render_template_string, request, send_file
 import sqlite3
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib import colors
 
 app = Flask(__name__)
 
 HTML_FORM = """
 <!doctype html>
-<title>Casa Abierta - Informática</title>
-<h2>Registro y Cuestionario</h2>
-<form method="post">
-  <label>Nombre:</label><br>
-  <input type="text" name="nombre" required><br><br>
-  <label>Correo:</label><br>
-  <input type="email" name="correo"><br><br>
-  <label>Institución:</label><br>
-  <input type="text" name="institucion"><br><br>
-  <h3>Cuestionario</h3>
-  <label>1. ¿Qué significa CPU?</label><br>
-  <input type="radio" name="p1" value="a"> Central Processing Unit<br>
-  <input type="radio" name="p1" value="b"> Computer Personal Unit<br><br>
-
-  <label>2. ¿Cuál es un sistema operativo?</label><br>
-  <input type="radio" name="p2" value="a"> Microsoft Word<br>
-  <input type="radio" name="p2" value="b"> Windows<br><br>
-
-  <label>3. ¿Qué es HTML?</label><br>
-  <input type="radio" name="p3" value="a"> Un lenguaje de programación<br>
-  <input type="radio" name="p3" value="b"> Lenguaje de marcado para páginas web<br><br>
-
-  <input type="submit" value="Enviar y generar certificado">
-</form>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Casa Abierta - Informática</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(to right, #e3f2fd, #ffffff);
+    }
+    .card {
+      border-radius: 1rem;
+    }
+    .btn-custom {
+      background-color: #0d6efd;
+      color: white;
+    }
+    .btn-custom:hover {
+      background-color: #0b5ed7;
+    }
+  </style>
+</head>
+<body>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white text-center">
+          <h3 class="mb-0">Registro y Cuestionario de Informática</h3>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            <div class="mb-3">
+              <label class="form-label">Nombre completo</label>
+              <input type="text" name="nombre" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Correo electrónico</label>
+              <input type="email" name="correo" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Institución</label>
+              <input type="text" name="institucion" class="form-control">
+            </div>
+            <hr>
+            <h5 class="text-primary">Cuestionario</h5>
+            <div class="mb-3">
+              <label class="form-label">1. ¿Qué significa CPU?</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="p1" value="a" required>
+                <label class="form-check-label">Central Processing Unit</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="p1" value="b">
+                <label class="form-check-label">Computer Personal Unit</label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">2. ¿Cuál es un sistema operativo?</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="p2" value="a" required>
+                <label class="form-check-label">Microsoft Word</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="p2" value="b">
+                <label class="form-check-label">Windows</label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">3. ¿Qué es HTML?</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="p3" value="a" required>
+                <label class="form-check-label">Un lenguaje de programación</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="p3" value="b">
+                <label class="form-check-label">Lenguaje de marcado para páginas web</label>
+              </div>
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-custom px-4">Enviar y generar certificado</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
 """
 
 def calcular_puntaje(respuestas):
@@ -41,13 +106,32 @@ def calcular_puntaje(respuestas):
 
 def generar_certificado(nombre, puntaje):
     buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=letter)
-    c.setFont("Helvetica-Bold", 20)
-    c.drawCentredString(300, 750, "Certificado de Participación")
-    c.setFont("Helvetica", 14)
-    c.drawString(100, 700, f"Se certifica que {nombre} ha participado en la Casa Abierta de Informática.")
-    c.drawString(100, 670, f"Puntaje obtenido en el cuestionario: {puntaje} / 3")
-    c.drawString(100, 640, "¡Gracias por tu participación!")
+    c = canvas.Canvas(buffer, pagesize=(letter[0], letter[1] / 2))  # Media página
+
+    # Fondo suave
+    c.setFillColorRGB(0.95, 0.95, 1)
+    c.rect(0, 0, letter[0], letter[1] / 2, fill=1)
+
+    # Bordes decorativos
+    c.setStrokeColor(colors.lightblue)
+    c.setLineWidth(4)
+    c.rect(20, 20, letter[0] - 40, (letter[1] / 2) - 40)
+
+    # Título
+    c.setFont("Helvetica-Bold", 18)
+    c.setFillColor(colors.darkblue)
+    c.drawCentredString(letter[0] / 2, (letter[1] / 2) - 60, "Certificado de Participación")
+
+    # Contenido
+    c.setFont("Helvetica", 12)
+    c.setFillColor(colors.black)
+    c.drawCentredString(letter[0] / 2, (letter[1] / 2) - 90,
+                        f"Se certifica que {nombre} ha participado en la Casa Abierta de Informática.")
+    c.drawCentredString(letter[0] / 2, (letter[1] / 2) - 110,
+                        f"Puntaje obtenido en el cuestionario: {puntaje} / 3")
+    c.drawCentredString(letter[0] / 2, (letter[1] / 2) - 140,
+                        "¡Gracias por tu participación!")
+
     c.showPage()
     c.save()
     buffer.seek(0)
@@ -57,7 +141,7 @@ def generar_certificado(nombre, puntaje):
 def index():
     if request.method == 'POST':
         nombre = request.form['nombre']
-        correo = request.form['correo']
+        correo = request.form.get('correo', '')
         institucion = request.form['institucion']
         respuestas = {k: request.form.get(k) for k in ['p1', 'p2', 'p3']}
         puntaje = calcular_puntaje(respuestas)
@@ -77,4 +161,4 @@ def index():
     return render_template_string(HTML_FORM)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='192.168.0.180', port=5000, debug=True)
