@@ -71,94 +71,151 @@ def obtener_ip_local():
 
 
 def generar_formulario_html(preguntas):
-    html = """<!doctype html><html lang="es"><head><meta charset="utf-8">
-    <title>Casa Abierta - Informática</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>body {background: linear-gradient(to right, #e3f2fd, #ffffff);}
-    .card {border-radius: 1rem;} .btn-custom {background-color: #0d6efd; color: white;}
-    .btn-custom:hover {background-color: #0b5ed7;}</style></head><body>
-    <div class="container py-5"><div class="row justify-content-center"><div class="col-md-8">
-    <div class="card shadow"><div class="card-header bg-primary text-white text-center">
-    <h3 class="mb-0">Registro y Cuestionario de Informática</h3></div><div class="card-body">
-    <form method="post">
-    <div class="mb-3"><label class="form-label">Nombre completo</label>
-    <input type="text" name="nombre" class="form-control" required></div>
-    <div class="mb-3"><label class="form-label">Correo electrónico</label>
-    <input type="email" name="correo" class="form-control"></div>
-    <div class="mb-3"><label class="form-label">Institución</label>
-    <input type="text" name="institucion" class="form-control"></div><hr>
-    <h5 class="text-primary">Cuestionario</h5>
+    html = """<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Casa Abierta - Informática</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(to right, #e3f2fd, #ffffff);
+    }
+    .card {
+      border-radius: 1rem;
+    }
+    .btn-custom {
+      background-color: #0d6efd;
+      color: white;
+    }
+    .btn-custom:hover {
+      background-color: #0b5ed7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white text-center">
+            <h3 class="mb-0">Registro y Cuestionario de Informática</h3>
+          </div>
+          <div class="card-body">
+            <form method="post">
+              <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre completo</label>
+                <input type="text" id="nombre" name="nombre" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label for="correo" class="form-label">Correo electrónico</label>
+                <input type="email" id="correo" name="correo" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label for="institucion" class="form-label">Institución</label>
+                <input type="text" id="institucion" name="institucion" class="form-control" required>
+              </div>
+              <hr>
+              <h5 class="text-primary">Cuestionario</h5>
     """
+
     for i, (key, (pregunta, opciones, _)) in enumerate(preguntas.items(), start=1):
-        html += f"""<div class="mb-3"><label class="form-label">{i}. {pregunta}</label>"""
-        for j, opcion in zip(['a', 'b'], opciones):
+        html += f"""<div class="mb-3">
+        <label class="form-label">{i}. {pregunta}</label>"""
+        for j, opcion in zip(map(chr, range(97, 97 + len(opciones))), opciones):
+            input_id = f"{key}_{j}"
             html += f"""<div class="form-check">
-            <input class="form-check-input" type="radio" name="{key}" value="{j}" required>
-            <label class="form-check-label">{opcion}</label></div>"""
+              <input class="form-check-input" type="radio" name="{key}" value="{j}" id="{input_id}" required>
+              <label class="form-check-label" for="{input_id}">{opcion}</label>
+            </div>"""
         html += "</div>"
+
     html += """<div class="text-center">
-    <button type="submit" class="btn btn-custom px-4">Enviar y generar certificado</button>
-    </div></form></div></div></div></div></div></body></html>"""
+                <button type="submit" class="btn btn-custom w-100 w-md-auto px-4">Enviar y generar certificado</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>"""
     return html
 
 def calcular_puntaje(respuestas, preguntas):
     return sum(1 for k in preguntas if respuestas.get(k) == preguntas[k][2])
 
-def generar_certificado(nombre, puntaje, fecha, codigo):
-    buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=(letter[0], letter[1] / 2))
-    c.setFillColorRGB(0.95, 0.95, 1)
-    c.rect(0, 0, letter[0], letter[1] / 2, fill=1)
-    c.setStrokeColor(colors.lightblue)
-    c.setLineWidth(4)
-    c.rect(20, 20, letter[0] - 40, (letter[1] / 2) - 40)
-
-    # Logo
-    logo_path = "static/logo.png"
-    logo_width = 40
-    logo_height = 40
-    logo_x = (letter[0] - logo_width) / 2
-    logo_y = (letter[1] / 2) - logo_height - 20
-    try:
-        c.drawImage(logo_path, logo_x, logo_y, width=logo_width, height=logo_height, mask='auto')
-    except:
-        pass
-
-    # Texto
-    c.setFont("Helvetica-Bold", 14)
-    c.setFillColor(colors.darkblue)
-    c.drawCentredString(letter[0] / 2, logo_y - 10, 'UNIDAD EDUCATIVA "ALBERTINA RIVAS MEDINA"')
-    c.setFont("Helvetica", 12)
-    c.drawCentredString(letter[0] / 2, logo_y - 25, 'BACHILLERATO TÉCNICO INFORMÁTICA')
-    c.setFont("Helvetica-Bold", 18)
-    c.drawCentredString(letter[0] / 2, logo_y - 50, "Certificado de Participación")
-    c.setFont("Helvetica", 12)
-    c.setFillColor(colors.black)
-    c.drawCentredString(letter[0] / 2, logo_y - 80, f"{nombre} participó en la Casa Abierta de Informática.")
-    c.drawCentredString(letter[0] / 2, logo_y - 100, f"Puntaje: {puntaje} / 3")
-    c.drawCentredString(letter[0] / 2, logo_y - 120, f"Fecha: {fecha}")
-    c.drawCentredString(letter[0] / 2, logo_y - 150, "¡Gracias por tu participación!")
-
-    # Código y QR
-    c.setFont("Helvetica", 10)
-    c.drawCentredString(letter[0] / 2, logo_y - 165, f"Código de verificación: {codigo}")
+def generar_certificado_html(nombre, puntaje, fecha, codigo):
     ip_local = obtener_ip_local()
-
-    qr_url = f"http://{ip_local}:5000/verificar_premio?codigo={codigo}"  # Reemplaza con tu IP local
+    qr_url = f"http://{ip_local}:5000/verificar_premio?codigo={codigo}"
     qr_img = qrcode.make(qr_url)
     qr_buffer = BytesIO()
     qr_img.save(qr_buffer, format='PNG')
-    qr_buffer.seek(0)
-    qr_image = ImageReader(qr_buffer)
-    c.drawImage(qr_image, 450, 30, width=80, height=80)
+    qr_base64 = base64.b64encode(qr_buffer.getvalue()).decode()
 
-
-
-    c.showPage()
-    c.save()
-    buffer.seek(0)
-    return buffer
+    html = f"""
+<!doctype html>
+<html lang='es'>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>Certificado de Participación</title>
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+    <style>
+        body {{
+            background: linear-gradient(to right, #e3f2fd, #ffffff);
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+        }}
+        .certificado {{
+            max-width: 700px;
+            margin: auto;
+            padding: 20px;
+            border: 3px solid #0d6efd;
+            border-radius: 15px;
+            background-color: #ffffff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }}
+        .certificado h2 {{
+            color: #0d6efd;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }}
+        .certificado p {{
+            font-size: 1rem;
+            margin: 8px 0;
+        }}
+        .qr img {{
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 5px;
+            background-color: #f8f9fa;
+            max-width: 100%;
+            height: auto;
+        }}
+    </style>
+</head>
+<body>
+    <div class='certificado text-center'>
+        <h2>🎓 Certificado de Participación</h2>
+        <p><strong>Nombre:</strong> {nombre}</p>
+        <p><strong>Puntaje:</strong> {puntaje} / 3</p>
+        <p><strong>Fecha:</strong> {fecha}</p>
+        <p><strong>Código de verificación:</strong> {codigo}</p>
+        <div class='qr'>
+            <img src='data:image/png;base64,{qr_base64}' alt='Código QR'>
+        </div>
+        <p class='mt-4 text-success'>¡Gracias por tu participación en la Casa Abierta de Informática!</p>
+    </div>
+</body>
+</html>
+"""
     
+    return html
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
@@ -191,8 +248,7 @@ def index():
       session.pop('preguntas', None)
 
       if puntaje >= 2:
-          pdf = generar_certificado(nombre, puntaje, fecha, codigo)
-          return send_file(pdf, as_attachment=True, download_name='certificado.pdf', mimetype='application/pdf')
+          return generar_certificado_html(nombre, puntaje, fecha, codigo)
       else:
           return f"""<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">
           <style>body {{ font-family: sans-serif; padding: 1rem; text-align: center; }}</style></head><body>
@@ -253,23 +309,33 @@ def render_html(mensaje, imagen_url):
     return f"""
     <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
             body {{
                 font-family: 'Segoe UI', sans-serif;
                 background-color: #f9f9f9;
                 text-align: center;
-                padding: 50px;
+                padding: 5vw;
             }}
             .mensaje {{
-                font-size: 28px;
+                font-size: 5vw;
                 color: #333;
-                margin-top: 20px;
+                margin-top: 4vh;
             }}
             .imagen {{
-                width: 220px;
+                max-width: 80%;
                 height: auto;
-                margin-top: 30px;
+                margin-top: 5vh;
                 border-radius: 10px;
+            }}
+            @media (min-width: 768px) {{
+                .mensaje {{
+                    font-size: 28px;
+                }}
+                .imagen {{
+                    max-width: 220px;
+                }}
             }}
         </style>
     </head>
