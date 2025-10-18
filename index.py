@@ -346,41 +346,6 @@ def render_html(mensaje, imagen_url):
     </html>
     """
 
-@app.route('/gracias')
-def gracias():
-    nombre = session.get('nombre')
-    puntaje = session.get('puntaje')
-    fecha = session.get('fecha')
-
-    if not nombre:
-        return redirect(url_for('index'))
-
-    # Solo generar certificado si el puntaje es suficiente
-    if puntaje >= 2:
-        pdf = generar_certificado(nombre, puntaje, fecha)
-        session['pdf'] = pdf.getvalue()
-        certificado_html = "<a href='/descargar_certificado' class='btn btn-primary mt-3'>Descargar certificado</a>"
-    else:
-        certificado_html = "<p class='text-danger'>No alcanzaste el puntaje mínimo para obtener certificado.</p>"
-
-    # Limpiar datos de sesión
-    session.pop('nombre', None)
-    session.pop('puntaje', None)
-    session.pop('fecha', None)
-
-    html = f"""<!doctype html><html lang="es"><head><meta charset="utf-8">
-    <title>Gracias por participar</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    </head><body><div class="container py-5 text-center">
-    <h2 class="text-success">¡Gracias por participar, {nombre}!</h2>
-    <p>Tu puntaje fue <strong>{puntaje} / 3</strong>.</p>
-    <p>Fecha de participación: {fecha}</p>
-    {certificado_html}
-    </div><script>
-    window.history.pushState(null, "", window.location.href);
-    window.onpopstate = function () {{ window.history.pushState(null, "", window.location.href); }};
-    </script></body></html>"""
-    return html
 
 @app.route('/descargar_certificado')
 def descargar_certificado():
