@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      text-align: center;
+      padding: 5vw;
+    }
+    .mensaje {
+      font-size: 5vw;
+      color: #333;
+      margin-top: 4vh;
+    }
+    .imagen {
+      max-width: 80%;
+      height: auto;
+      margin-top: 5vh;
+      border-radius: 10px;
+    }
+    @media (min-width: 768px) {
+      .mensaje {
+        font-size: 28px;
+      }
+      .imagen {
+        max-width: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <img src="{{ imagen_url }}" alt="Resultado" class="imagen"/>
+  <div class="mensaje">{{ mensaje|safe }}</div>
+</body>
+</html>

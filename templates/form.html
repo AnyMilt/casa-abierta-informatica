@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Casa Abierta - Informática</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white text-center">
+            <h3 class="mb-0">Registro y Cuestionario de Informática</h3>
+          </div>
+          <div class="card-body">
+            <form method="post">
+              <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre completo</label>
+                <input type="text" id="nombre" name="nombre" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label for="correo" class="form-label">Correo electrónico</label>
+                <input type="email" id="correo" name="correo" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label for="institucion" class="form-label">Institución</label>
+                <input type="text" id="institucion" name="institucion" class="form-control" required>
+              </div>
+              <hr>
+              <h5 class="text-primary">Cuestionario</h5>
+              {% for key, (pregunta, opciones, _) in preguntas.items() %}
+                <div class="mb-3">
+                  <label class="form-label">{{ loop.index }}. {{ pregunta }}</label>
+                  {% for opcion in opciones %}
+                    {% set j = ['a', 'b', 'c', 'd'][loop.index0] %}
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="{{ key }}" value="{{ j }}" id="{{ key }}_{{ j }}" required>
+                      <label class="form-check-label" for="{{ key }}_{{ j }}">{{ opcion }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+              <div class="text-center">
+                <button type="submit" class="btn btn-custom w-100 w-md-auto px-4">Enviar y generar certificado</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
