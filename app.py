@@ -6,6 +6,8 @@ from routes.main import main
 from routes.verify import verify
 from routes.stats import stats
 from routes.download import download
+from routes.scanear import escanear
+
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -15,6 +17,7 @@ app.register_blueprint(main)
 app.register_blueprint(verify)
 app.register_blueprint(stats)
 app.register_blueprint(download)
+app.register_blueprint(escanear)
 
 # Inicializar base de datos
 init_db()

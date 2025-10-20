@@ -6,6 +6,8 @@ from services.certificate import generate_code, generate_certificate_html
 
 main = Blueprint('main', __name__)
 
+
+
 @main.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
