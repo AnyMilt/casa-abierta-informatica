@@ -427,21 +427,160 @@ body {
 
 /* Estilos para impresión */
 @media print {
-  .certificate-body {
+  @page {
+    size: A4;
+    margin: 0.5in;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  body, .certificate-body {
     background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 12pt !important;
+  }
+  
+  .container-fluid {
+    padding: 0 !important;
+    margin: 0 !important;
   }
   
   .certificate-container {
     box-shadow: none !important;
-    border: 3px solid #000 !important;
+    border: 2px solid #000 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    page-break-inside: avoid;
+  }
+  
+  .certificate-container::before {
+    display: none !important;
+  }
+  
+  .certificate-header {
+    padding: 20px 15px !important;
+    background: #2c3e50 !important;
+    color: white !important;
+  }
+  
+  .certificate-title h1 {
+    font-size: 18pt !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .certificate-title h2 {
+    font-size: 14pt !important;
+  }
+  
+  .logo-img {
+    height: 50px !important;
+  }
+  
+  .certificate-content {
+    padding: 20px 15px !important;
+  }
+  
+  .participant-name h3 {
+    font-size: 24pt !important;
+    margin: 20px 0 10px 0 !important;
+  }
+  
+  .certificate-description {
+    font-size: 11pt !important;
+    margin: 20px 0 !important;
+    padding: 0 !important;
+  }
+  
+  .certificate-details {
+    padding: 15px !important;
+    margin: 20px 0 !important;
+    background: #f8f9fa !important;
+  }
+  
+  .detail-item {
+    font-size: 10pt !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .qr-section {
+    margin: 20px 0 !important;
+  }
+  
+  .qr-container {
+    padding: 10px !important;
+    border: 2px solid #000 !important;
+  }
+  
+  .qr-image {
+    width: 100px !important;
+    height: 100px !important;
+  }
+  
+  .qr-text {
+    font-size: 9pt !important;
+    margin-top: 8px !important;
+  }
+  
+  .certificate-footer {
+    padding: 20px 15px !important;
+    background: #f8f9fa !important;
+  }
+  
+  .signature-section {
+    margin-bottom: 15px !important;
+  }
+  
+  .signature-line {
+    width: 150px !important;
+  }
+  
+  .signature-text {
+    font-size: 10pt !important;
+  }
+  
+  .certificate-footer-text {
+    margin-top: 15px !important;
+    padding-top: 10px !important;
+  }
+  
+  .certificate-footer-text p {
+    font-size: 9pt !important;
+    margin: 5px 0 !important;
   }
   
   .certificate-actions {
     display: none !important;
   }
   
-  .certificate-container::before {
-    display: none !important;
+  .title-decoration {
+    width: 80px !important;
+    height: 2px !important;
+  }
+  
+  .name-decoration {
+    width: 150px !important;
+    height: 3px !important;
+  }
+  
+  .name-decoration::before,
+  .name-decoration::after {
+    font-size: 12px !important;
+    top: -6px !important;
+  }
+  
+  .name-decoration::before {
+    left: -15px !important;
+  }
+  
+  .name-decoration::after {
+    right: -15px !important;
   }
 }
 
