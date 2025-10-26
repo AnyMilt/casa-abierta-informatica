@@ -1,5 +1,4 @@
 flask
 reportlab
-flask reportlab
 matplotlib
 qrcode[pil]

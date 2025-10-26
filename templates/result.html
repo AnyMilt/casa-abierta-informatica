@@ -1,18 +1,117 @@
 <!doctype html>
-<html>
+<html lang="es">
 <head>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 1rem;
-      text-align: center;
-    }
-  </style>
+  <title>Resultado - Casa Abierta Informática</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <h2>¡Gracias por participar, {{ nombre }}!</h2>
-  <p>Tu puntaje fue <strong>{{ puntaje }} / 3</strong>.</p>
-  <p>No alcanzaste el puntaje mínimo para obtener certificado.</p>
+  <div class="container-fluid py-4">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0">
+          <div class="card-header bg-warning text-dark text-center py-4">
+            <div class="d-flex align-items-center justify-content-center mb-3">
+              <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="me-3" style="height: 50px; filter: brightness(0);">
+              <h3 class="mb-0">Casa Abierta - Informática</h3>
+            </div>
+            <div class="result-icon mb-3">
+              <i class="fas fa-chart-line fa-3x text-warning"></i>
+            </div>
+            <h4 class="mb-0">Resultado del Cuestionario</h4>
+          </div>
+          
+          <div class="card-body text-center py-5">
+            <div class="result-content">
+              <h2 class="text-primary mb-4">
+                <i class="fas fa-user-circle me-2"></i>
+                ¡Gracias por participar, {{ nombre }}!
+              </h2>
+              
+              <div class="score-display mb-4">
+                <div class="score-circle mx-auto mb-3">
+                  <div class="score-number">{{ puntaje }}</div>
+                  <div class="score-total">/ 3</div>
+                </div>
+                <h5 class="text-muted">Puntaje Obtenido</h5>
+              </div>
+              
+              <div class="alert alert-warning border-0 mb-4" role="alert">
+                <div class="d-flex align-items-center justify-content-center">
+                  <i class="fas fa-info-circle me-2 fa-lg"></i>
+                  <div>
+                    <strong>Puntaje mínimo requerido: 2/3</strong><br>
+                    <small>No alcanzaste el puntaje mínimo para obtener certificado.</small>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="encouragement-section mb-4">
+                <h6 class="text-muted mb-3">¡No te desanimes!</h6>
+                <div class="row text-center">
+                  <div class="col-4">
+                    <i class="fas fa-book fa-2x text-info mb-2"></i>
+                    <small class="d-block">Sigue estudiando</small>
+                  </div>
+                  <div class="col-4">
+                    <i class="fas fa-redo fa-2x text-success mb-2"></i>
+                    <small class="d-block">Practica más</small>
+                  </div>
+                  <div class="col-4">
+                    <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+                    <small class="d-block">Inténtalo de nuevo</small>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="action-buttons">
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg me-2">
+                  <i class="fas fa-redo me-2"></i>Intentar de nuevo
+                </a>
+                <a href="{{ url_for('stats.estadisticas') }}" class="btn btn-outline-secondary">
+                  <i class="fas fa-chart-bar me-2"></i>Ver estadísticas
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-footer bg-light text-center py-3">
+            <small class="text-muted">
+              <i class="fas fa-heart text-danger me-1"></i>
+              Gracias por participar en nuestra Casa Abierta de Informática
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Animación de entrada
+    document.addEventListener('DOMContentLoaded', function() {
+      const card = document.querySelector('.card');
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      
+      setTimeout(() => {
+        card.style.transition = 'all 0.6s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, 100);
+      
+      // Animación del círculo de puntaje
+      const scoreCircle = document.querySelector('.score-circle');
+      setTimeout(() => {
+        scoreCircle.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+          scoreCircle.style.transform = 'scale(1)';
+        }, 200);
+      }, 800);
+    });
+  </script>
 </body>
 </html>
