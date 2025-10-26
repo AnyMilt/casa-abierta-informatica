@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Escanear QR</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+  <h2>📷 Escanea tu código QR</h2>
+  <div id="reader" style="width:300px;"></div>
+
+  <script>
+    function onScanSuccess(decodedText, decodedResult) {
+      fetch('/participantes/verificar_qr', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({codigo: decodedText})
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.mensaje);
+        if (data.entregado) {
+          window.location.href = "/participantes/certificado";
+        } else {
+          window.location.href = "/participantes/no_aprobado";
+        }
+      });
+    }
+
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      onScanSuccess
+    );
+  </script>
+</body>
+</html>
